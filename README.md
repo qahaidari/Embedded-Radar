@@ -18,7 +18,7 @@ Embedded radar sensor circuit with STM32 microcontroller and C programming for m
 
 # Project Description
 
-# Introduction
+## Introduction
 
 RADAR stands for Radio Detection And Ranging and is a detection system that uses radio waves to determine the range, angle, or velocity of objects. It can be used to detect aircraft, ships, spacecraft, guided missiles, motor vehicles, weather formations, and terrain. Radars are now involved in various applications. It was initially used for target detection in military applications but nowadays it is used in tracking of aircrafts and vehicles and also in traffic control and space. In this project we will concentrate on motion and speed detection of objects using Radars.
 
@@ -26,10 +26,8 @@ The basic concept of Radar is sending an electromagnetic signal from a source wh
 
 The Doppler effect is the change of the frequency of an incident wave on a moving object in its reflected wave. The difference in frequencies is measured through a microcontroller to measure the speed of the moving object using the below formulas:
 
-<a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;\begin{equation}&space;\Delta&space;f=\frac{2&space;v}{\lambda}&space;\end{equation}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;\begin{equation}&space;\Delta&space;f=\frac{2&space;v}{\lambda}&space;\end{equation}" title="\large \begin{equation} \Delta f=\frac{2 v}{\lambda} \end{equation}" /></a>
+<a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;\Delta&space;f=\frac{2&space;v}{\lambda}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;\Delta&space;f=\frac{2&space;v}{\lambda}" title="\large \Delta f=\frac{2 v}{\lambda}" /></a>
 
-\begin{equation}
-\lambda=\frac{c}{f_t}
-\end{equation}
+<a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;\lambda=\frac{c}{f_t}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;\lambda=\frac{c}{f_t}" title="\large \lambda=\frac{c}{f_t}" /></a>
 
-where $\Delta f$ is the difference between transmitted and received frequencies of the signal, $\lambda$ is the wavelength, $f_t$ is the frequency of the transmitted signal, $c$ is the speed of light and $v$ is the velocity of the object.
+where <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\Delta&space;f" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\Delta&space;f" title="\large \Delta f" /></a> is the difference between transmitted and received frequencies of the signal, <a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;\lambda" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;\lambda" title="\large \lambda" /></a> is the wavelength, <a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;f_t" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;f_t" title="\large f_t" /></a> is the frequency of the transmitted signal, <a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;c" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;c" title="\large c" /></a> is the speed of light and <a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;v" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;v" title="\large v" /></a> is the velocity of the object.
