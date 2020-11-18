@@ -37,131 +37,67 @@ where <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&s
 ### Circuit Design and Components
 
 In this project, we are using an input source for the signal generation and reception, an amplifier and filter stage, a processing unit, a display, two switches and three LEDs. Below figure shows the block diagram of the project.
-![Block diagram](https://octodex.github.com/images/yaktocat.png)
+![Block diagram](https://github.com/qahaidari/Embedded-Radar/blob/main/images/Block_diagram.JPG)
 
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=12cm, height=5.5cm]{Block_diagram}
-	\caption{Block diagram of speed detection Radar}
-\end{figure}
+In the first stage, we use an IPM-165 Radar module which contains a full duplex patch antenna that transmits and receives signals in the K-band (24GHz). The reflected signal from the moving object has a slightly different frequency than that of the transmitted signal. This difference can be detected by the internal oscillator and the mixer inside the Radar module.
 
+In the next stage, we use an amplifier to amplify the received signal for a more precise measurement and in order to increase the ability to detect objects far from the Radar module.
 
+Due to possible additional noise in the environment which would affect the measurements negatively, we have also included a Notch filter that can suppress the noise at a certain frequency. We have included a filter with a 100Hz frequency suppression as we might have neon light in the environment which would produce signals in this range. The drawback is that the respective speeds in the 100Hz frequency range will not be detected. So we are using both a filtered signal and a non-filtered signal in this project.   
 
+In the next stage we use the STM32L476 microcontroller. It converts the analog signal from the Radar module to a digital signal for processing. By processing the sampled digital signal, the microcontroller calculates the signal frequency and the speed of the object using the Doppler formula. The results for both filtered and non-filtered signals will be displayed on the LCD for user reading.
 
+Two switches (one for switching between the filtered and non-filtered signal and one for freezing the maximum speed on the LCD) and three LEDs (for indicating the filtered, non-filtered and freeze states) are used for user requests and status indication.
 
+### Schematic and Hardware Considerations
 
+There are some points that should be considered in the hardware design in addition to the previous main blocks. We will highlight them in this section as shown in the following schematics.
 
+![Schematic zoom](https://github.com/qahaidari/Embedded-Radar/blob/main/images/Schematic_zoom.jpg)
 
+**Power Supply Decoupling Capacitors:** It is highly recommended to connect capacitors to the input DC power supply to minimize the ripples that can be formed due to a non-ideal source. The capacitors C14 to C16 are used at the biasing of operational amplifier, Radar sensor and LCD and the capacitors C12 and C13 are connected to the input power supply. Below figure shows the schematic of decoupling capacitors for main power supply and power supplies of LCD, radar sensor and operational amplifier.
 
+![Decoup caps](https://github.com/qahaidari/Embedded-Radar/blob/main/images/decoup_caps.JPG)
 
+**Operational Amplifier and Notch Filter:** In our design, we used 3 Op-amps, and for size reduction we used a compact IC MC33079 which has 4 Op-amps. The first 2 Op-amps (U1A and U1B) are used in the amplifier circuit stage. The last Op-amp (U1D) is used as a voltage follower to isolate the effect of the load (microcontroller) on the voltage of the connected RC filter at the input of the Op-amp. The Notch filter is used to suppress the effect of noise at 100Hz frequency. Below figure shows the operational amplifier and the Notch filter with their connectivity to the microcontroller. The non-filtered signal is fed to pin PC0 and the filtered signal to pin PC1.
 
+![Amplifier notch](https://github.com/qahaidari/Embedded-Radar/blob/main/images/amplifier_notch.JPG)
 
+**Switch Buttons:** We used 2 switch buttons that should be connected to a debouncing circuit containing resistors and capacitors so that their bouncing when being pressed is canceled. Below figure shows their connectivity with the microcontroller. We used the formula
 
+<a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;U_c(t)&space;=&space;U_0&space;e^{-t/\tau}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;U_c(t)&space;=&space;U_0&space;e^{-t/\tau}" title="\large U_c(t) = U_0 e^{-t/\tau}" /></a>
 
+to calculate the time <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\tau" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\tau" title="\large \tau" /></a>, and from it we can calculate the resistor value <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;R16=R17=30K\Omega" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;R16=R17=30K\Omega" title="\large R16=R17=30K\Omega" /></a> from
 
+<a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;\tau&space;=&space;RC" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;\tau&space;=&space;RC" title="\large \tau = RC" /></a>
 
+Taking the bouncing time of the switches as <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\textit{t\_bouncing}&space;=&space;0.85&space;\textit{(ms)}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\textit{t\_bouncing}&space;=&space;0.85&space;\textit{(ms)}" title="\large \textit{t\_bouncing} = 0.85 \textit{(ms)}" /></a> and the value of capacitor as <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\textit{C}&space;=&space;100&space;\textit{(nF)}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\textit{C}&space;=&space;100&space;\textit{(nF)}" title="\large \textit{C} = 100 \textit{(nF)}" /></a>, we calculated  
 
+<a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;\tau&space;>=&space;2.7(ms)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;\tau&space;>=&space;2.7(ms)" title="\large \tau >= 2.7(ms)" /></a>
 
+and this gave us
 
+<a href="https://www.codecogs.com/eqnedit.php?latex=\large&space;R&space;>=&space;27(k\Omega)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\large&space;R&space;>=&space;27(k\Omega)" title="\large R >= 27(k\Omega)" /></a>
 
-\noindent\\\\ In the first stage, we use an IPM-165 Radar module which contains a full duplex patch antenna that transmits and receives signals in the K-band (24GHz). The reflected signal from the moving object has a slightly different frequency than that of the transmitted signal. This difference can be detected by the internal oscillator and the mixer inside the Radar module.\\
+We finally chose the smallest E24 resistor for <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\textit{R16}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\textit{R16}" title="\large \textit{R16}" /></a> and <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\textit{R17}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\textit{R17}" title="\large \textit{R17}" /></a> as <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;30(k\Omega)" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;30(k\Omega)" title="\large 30(k\Omega)" /></a>. 
 
-\noindent In the next stage, we use an amplifier to amplify the received signal for a more precise measurement and in order to increase the ability to detect objects far from the Radar module.\\
+Below figure shows the two switches connected to microcontroller.
 
-\noindent Due to possible additional noise in the environment which would affect the measurements negatively, we have also included a Notch filter that can suppress the noise at a certain frequency. We have included a filter with a 100 Hz frequency suppression as we might have neon light in the environment which would produce signals in this range. The drawback is that the respective speeds in the 100Hz frequency range will not be detected. So we are using both a filtered signal and a non-filtered signal in this project. \\   
+![Switches micor](https://github.com/qahaidari/Embedded-Radar/blob/main/images/switches_micro.JPG)
 
-\noindent In the next stage we use the STM32L476 microcontroller. It converts the analog signal from the Radar module to a digital signal for processing. By processing the sampled digital signal, the microcontroller calculates the signal frequency and the speed of the object using the Doppler formula. The results for both filtered and non-filtered signals will be displayed on the LCD for user reading.\\
+**LED Indicators:** We used 3 red LEDs for status indication of the measuring process. We need a resistor at each LED to operate them at the desired intensity. According to the data sheet, the voltage drop was calculated using the Kirchoff's voltage law, and the resistors were calculated as <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;R18=R20=R21=180\Omega" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;R18=R20=R21=180\Omega" title="\large R18=R20=R21=180\Omega" /></a>.
 
-\noindent Two switches (one for switching between the filtered and non-filtered signal and one for freezing the maximum speed on the LCD) and three LEDs (for indicating the filtered, non-filtered and freeze states) are used for user requests and status indication.\\
+![Lcd led micro](https://github.com/qahaidari/Embedded-Radar/blob/main/images/lcd_led_micro.JPG)
 
-
-\section{Schematic and Hardware Considerations}
-
-There are some points that should be considered in the hardware design in addition to the previous main blocks. We will highlight them in this section as shown in the following schematics.\\\\\\
-
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=22.5cm,height=16cm,angle=90, keepaspectratio]{schematic_zoom}
-	\caption{Schematic of the Radar circuit}
-\end{figure}
-
-\noindent\textbf {Power Supply Decoupling Capacitors:} It is highly recommended to connect capacitors to the input DC power supply to minimize the ripples that can be formed due to a non-ideal source. The capacitors C14 to C16 are used at the biasing of operational amplifier, Radar sensor and LCD and the capacitors C12 and C13 are connected to the input power supply. Figure 2.3 shows the schematic of decoupling capacitors.\\
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=12.5cm,height=10cm, keepaspectratio]{decoup_caps}
-	\caption{Decoupling capacitors for main power supply and power supplies of LCD, Radar sensor and operational amplifier}
-\end{figure}
-
-
-\noindent\\\\\textbf{Operational Amplifier and Notch Filter:} In our design, we used 3 Op-amps, and for size reduction we used a compact IC MC33079 which has 4 Op-amps. 
-\noindent The first 2 Op-amps(U1A and U1B) are used in the amplifier circuit stage. The last Op-amp(U1D) is used as a voltage follower to isolate the effect of the load (microcontroller) on the voltage of the connected RC filter at the input of the Op-amp. The Notch filter is used to suppress the effect of noise at 100Hz frequency. Figure 2.4 shows the operational amplifier and the Notch filter with their connectivity to the microcontroller. The non-filtered signal is fed to pin PC0 and the filtered signal to pin PC1.\\
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=22.5cm,height=16cm, angle=90, keepaspectratio]{amplifier_notch}
-	\caption{Operational amplifer and Notch filter connected to microcontroller}
-\end{figure}
-
-\noindent\\\\\\\textbf{Switch Buttons:} We used 2 switch buttons that should be connected to a debouncing circuit containing resistors and capacitors so that their bouncing when being pressed is canceled. Figure 2.5 shows their connectivity with the microcontroller. We used the formula
-
-\begin{equation}
- U_c(t) = U_0 e^{-t/\tau}
-\end{equation} 
-
-\noindent to calculate the time $\tau$, and from it we can calculate the resistor value $R16=R17=30K\Omega$ from
-
-\begin{equation}
-\tau = RC
-\end{equation} 
-
-\noindent Taking the bouncing time of the switches as \textit{t\_bouncing} $= 0.85$ \textit{(ms)} and the value of capacitor as \textit{C} $= 100$ \textit{(nF)}, we calculated  
-
-\begin{equation}
-\tau >= 2.7(ms)
-\end{equation}
-
-\noindent and this gave us
-
-\begin{equation}
-R >= 27(k\Omega)
-\end{equation}
-
-\noindent We finally chose the smallest E24 resistor for \textit{R16} and \textit{R17} as $30(k\Omega)$. 
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=16.5cm,height=14cm, keepaspectratio]{switches_micro}
-	\caption{Two switches connected to microcontroller}
-\end{figure}
-
-
-\noindent\\\\\\\textbf{LED Indicators:} We used 3 red LEDs for status indication of the measuring process. We need a resistor at each LED to operate them at the desired intensity. According to the data sheet, the voltage drop was calculated using the Kirchoff's voltage law, and the resistors were calculated as R18=R20=R21=180$\Omega$.\\
-
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=16.5cm,height=14cm, keepaspectratio]{lcd_led_micro}
-	\caption{LCD and three LEDs connected to microcontroller}
-\end{figure}
-
-\section{Operational Flowchart}
+### Operational Flowchart
  
-\noindent Fig 2.3 represents the flowchart of the Radar operation.\\
- 
-\begin{figure}[H]
- 	\centering
- 	\includegraphics[width=10cm,height=14.5cm]{Flowchart}
- 	\caption{Flowchart of speed detection radar}
-\end{figure}
- 
-\noindent\\\\\\\\\\\\ In this project we have considered 2 scales for the calculation of speed: Kilometer per hour and meter per second, both are displayed on the screen. We can distinguish between filtered and non-filtered signals. The user can switch between them by using switch 2 and the respective speeds in kmh and m/s will be displayed on the LCD. Switch 1 is used to freeze the maximum speed which has been captured so far. LED1 will be ON to indicate the freeze state, and LED2 and LED3 will be ON to show if the filtered signal or the non-filtered signal has been selected respectively.\\
- 
- 
+Below figure represents the flowchart of the Radar operation.
 
-
-
-\chapter{Software Concept}
+![Flowchart](https://github.com/qahaidari/Embedded-Radar/blob/main/images/Flowchart.png)
+ 
+In this project we have considered 2 scales for the calculation of speed: Kilometer per hour and meter per second, both are displayed on the screen. We can distinguish between filtered and non-filtered signals. The user can switch between them by using switch 2 and the respective speeds in kmh and m/s will be displayed on the LCD. Switch 1 is used to freeze the maximum speed which has been captured so far. LED1 will be ON to indicate the freeze state, and LED2 and LED3 will be ON to show if the filtered signal or the nonfiltered signal has been selected respectively.
+ 
+## Software Concept
 
 \noindent\textbf{Interrupts:} There are two switches (SW1 and SW2) which act as external interrupts. The following external interrupt callback function sends a specific flag to the queue depending on which one has been pressed.\\
 \begin{figure}[H]
