@@ -110,8 +110,7 @@ In the main task, anytime the SW2 flag is received from the queue, a switch betw
 ```c 
 int final_count = 0;
 ```
-indicates number of samples between two successive zeros in the signal
-
+`final_count` indicates number of samples between two successive zeros in the signal.
 
 ```c
 int timer_div = 0;
@@ -119,13 +118,10 @@ int timer_div = 0;
 ```c
 int sample = 0, prevsample = 0;
 ```
-
-
 ```c
 sample_count = 0;
 ```
-it is incremented each time a new sample is taken
-
+`sample_count` is incremented each time a new sample is taken.
 
 ```c
 freeze = 1;
