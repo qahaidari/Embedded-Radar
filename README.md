@@ -103,7 +103,7 @@ In this project we have considered 2 scales for the calculation of speed: Kilome
 
 ![EXTI callback](https://github.com/qahaidari/Embedded-Radar/blob/main/images/EXTI_Callback.JPG)
 
-In the main task, anytime the SW2 flag is received from the queue, a switch between measurements for filtered and non-filtered signal will happen. This is done by changing the value of a local variable (<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\textit{state}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\textit{state}" title="\large \textit{state}" /></a>) on each SW2-ISR to Task communication. Depending on the value of <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\textit{state}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\textit{state}" title="\large \textit{state}" /></a>, an appropriate channel of ADC which takes samples from either a filtered or a non-filtered signal is selected. 
+In the main task, anytime the SW2 flag is received from the queue, a switch between measurements for filtered and non-filtered signal will happen. This is done by changing the value of a local variable `state` on each SW2-ISR to Task communication. Depending on the value of `state`, an appropriate channel of ADC which takes samples from either a filtered or a non-filtered signal is selected.
 
 **Global Variables:** The following global variables with their respective initial values have been used in the program:
 
@@ -112,6 +112,7 @@ int final_count = 0;
 ```
 indicates number of samples between two successive zeros in the signal
 
+
 ```c
 int timer_div = 0;
 ```
@@ -119,15 +120,16 @@ int timer_div = 0;
 int sample = 0, prevsample = 0;
 ```
 
+
 ```c
 sample_count = 0;
 ```
 it is incremented each time a new sample is taken
 
+
 ```c
 freeze = 1;
 ```
-
 ```c
 double min_final_count = 30000;
 ```
