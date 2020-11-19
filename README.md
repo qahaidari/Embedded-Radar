@@ -99,64 +99,98 @@ In this project we have considered 2 scales for the calculation of speed: Kilome
  
 ## Software Concept
 
-\noindent\textbf{Interrupts:} There are two switches (SW1 and SW2) which act as external interrupts. The following external interrupt callback function sends a specific flag to the queue depending on which one has been pressed.\\
-\begin{figure}[H]
-	\centering
-	\includegraphics[width=12cm]{EXTI_Callback}
-	\caption{EXTI Callback function for switches 1 and 2; The function also shows the communication between ISR and the queue}
-\end{figure}
-\noindent In the main task, anytime the SW2 flag is received from the queue, a switch between measurements for filtered and non-filtered signal will happen. This is done by changing the value of a local variable (\textit{state}) on each SW2-ISR to Task communication. Depending on the value of \textit{state}, an appropriate channel of ADC which takes samples from either a filtered or a non-filtered signal is selected.\\ 
+**Interrupts:** There are two switches (SW1 and SW2) which act as external interrupts. The following external interrupt callback function sends a specific flag to the queue depending on which one has been pressed.
 
-\noindent\textbf{Global Variables:} The following global variables with their respective initial values have been used in the program:\\
-\noindent\textit{int final\_count} $= 0$; Indicates number of samples between two successive zeros in the signal\\
-\noindent\textit{int timer\_div} $= 0$;\\
-\noindent\textit{int sample} $= 0$, \textit{prevsample} $= 0$;\\ 
-\noindent\textit{sample\_count} $= 0$; It is incremented each time a new sample is taken\\
-\noindent\textit{freeze} $= 1$;\\
-\noindent\textit{double min\_final\_count} $= 30000$;\\
+![EXTI callback](https://github.com/qahaidari/Embedded-Radar/blob/main/images/EXTI_Callback.JPG)
 
-\noindent\textbf{Timer Settings for ADC Sampling:} The timer parameters have been set as the following:\\
+In the main task, anytime the SW2 flag is received from the queue, a switch between measurements for filtered and non-filtered signal will happen. This is done by changing the value of a local variable (<a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\textit{state}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\textit{state}" title="\large \textit{state}" /></a>) on each SW2-ISR to Task communication. Depending on the value of <a href="https://www.codecogs.com/eqnedit.php?latex=\inline&space;\large&space;\textit{state}" target="_blank"><img src="https://latex.codecogs.com/gif.latex?\inline&space;\large&space;\textit{state}" title="\large \textit{state}" /></a>, an appropriate channel of ADC which takes samples from either a filtered or a non-filtered signal is selected. 
 
-\noindent\textit{Prescaler} $= 1500$;\\
-\noindent\textit{Period} $= 1$;\\
-\noindent\textit{ClockDivision} $= 4$;\\\\
-\noindent Since the internal clock for the timer is 80MHz, these settings will make the final timer clock around 13333Hz. During each timer clock, ADC takes a sample and converts it to a digital value. This makes the sampling rate over 20 times the highest frequency (600 Hz) in the received signal (Nyquist criterion for sampling an analog signal with at least twice the highest frequency in the signal has been fulfilled).\\
+**Global Variables:** The following global variables with their respective initial values have been used in the program:
 
-\noindent\textbf{Local Variables in the Default Task}:\\\\
-\noindent\textit{int cIn} $= 0$;\\
-\noindent\textit{int state} $= 1$;\\
-\noindent\textit{double half\_period} $= 0$, \textit{doppler\_f} $= 0$;\\
-\noindent\textit{double v\_kmh} $= 0$, \textit{v\_ms} $= 0$;\\
-\noindent\textit{char str[10]};\\\\
+```c 
+int final_count = 0;
+```
+indicates number of samples between two successive zeros in the signal
 
-\noindent\textbf{Static Local Variable:} The static local variable (\textit{OFFSET}) is used in the timer service routine function to account for the offset value of the received signal.\\\\
+```c
+int timer_div = 0;
+```
+```c
+int sample = 0, prevsample = 0;
+```
 
-\noindent\textbf{Communication between Timer Service Routine Function and the Task:}\\\\
-\noindent Sending the flag \textit{cIn} $= 3$ from the timer SR to the queue: It is sent to the queue whenever a new zero crossing is detected and the current value of \textit{sample\_count} is put into \textit{final\_count} indicating the number of samples for the previous half period of the signal. \textit{sample\_count} value is then set to zero to start counting the number of samples in a new zero-crossing to zero-crossing interval.\\
+```c
+sample_count = 0;
+```
+it is incremented each time a new sample is taken
 
-\noindent The flag \textit{cIn} $=4$ is sent to the queue whenever the global variable \textit{timer\_div} reaches 4000. \textit{timer\_div} is incremented any time a timer clock calls the timer service routine function in which a new sample is taken and counted. This flag is used in order not to refresh the contents on the LCD screen any time a new speed is about to be displayed.\\
+```c
+freeze = 1;
+```
 
-\noindent\textbf{Functions of Switches and LEDs:}\\\\
-\noindent SW2: Switching between filtered and non-filtered measurements\\
-\noindent SW1: Freezing the max speed captured so far on LCD. The default state is not to freeze\\
-\noindent LED2: Filtered signal has been selected\\
-\noindent LED3: Non-filtered signal has been selected\\
-\noindent LED1: Indicating the freeze state\\
+```c
+double min_final_count = 30000;
+```
 
-\noindent\textbf{Freezing the Max Speed on LCD:} The global variable \textit{min\_final\_count} $=30000$ is used in combination with the global variable \textit{freeze} to freeze the maximum speed which has been captured so far. Switching between freezing and non-freezing states is done by the flag \textit{cIn} $=1$ which is received in the default task from the EXTI Callback function.\\
+**Timer Settings for ADC Sampling:** The timer parameters have been set as the following:
 
-\noindent Anytime a switch between filtered and non-filtered signal happens (through SW2), \textit{min\_final\_count} is reset to 30000 so that the max speed for the new signal type will not be affected by the values of the last signal type. Also, if this switch happens in the freeze state, the speed values will be reset to zero so that the previous frozen max speeds will not stay on the LCD screen.\\
+```c
+Prescaler = 1500;
+```
+```c
+Period = 1;
+```
+```c
+ClockDivision = 4;
+```
+Since the internal clock for the timer is 80MHz, these settings will make the final timer clock around 13333Hz. During each timer clock, ADC takes a sample and converts it to a digital value. This makes the sampling rate over 20 times the highest frequency (600Hz) in the received signal (Nyquist criterion for sampling an analog signal with at least twice the highest frequency in the signal has been fulfilled).
 
-\noindent In the non-freeze state, whenever a new \textit{final\_count} is received (through timer SR to task communication), it is compared with the current \textit{min\_final\_count} to update it for the max speed in the freeze state. In the freeze state, \textit{min\_final\_count} is taken for measurements\\
+**Local Variables in the Default Task:**
+```c
+int cIn = 0;
+```
+```c
+int state = 1;
+```
+```c
+double half_period = 0, doppler_f = 0;
+```
+```c
+double v_kmh = 0, v_ms = 0;
+```
+```c
+char str[10];
+```
+
+**Static Local Variable:** The static local variable `OFFSET` is used in the timer service routine function to account for the offset value of the received signal.
+
+**Communication between Timer Service Routine Function and the Task:**
+
+Sending the flag `cIn = 3` from the timer SR to the queue: It is sent to the queue whenever a new zero crossing is detected and the current value of `sample_count` is put into `final_count` indicating the number of samples for the previous half period of the signal. `sample_count` value is then set to zero to start counting the number of samples in a new zero-crossing to zero-crossing interval.
+
+The flag `cIn = 4` is sent to the queue whenever the global variable `timer_div` reaches 4000. `timer_div` is incremented any time a timer clock calls the timer service routine function in which a new sample is taken and counted. This flag is used in order not to refresh the contents on the LCD screen any time a new speed is about to be displayed.
+
+**Functions of Switches and LEDs:**
+
+SW2: Switching between filtered and non-filtered measurements
+
+SW1: Freezing the max speed captured so far on LCD. The default state is not to freeze
+
+LED2: Filtered signal has been selected
+
+LED3: Non-filtered signal has been selected
+
+LED1: Indicating the freeze state
+
+**Freezing the Max Speed on LCD:** The global variable `min_final_count = 30000` is used in combination with the global variable `freeze` to freeze the maximum speed which has been captured so far. Switching between freezing and non-freezing states is done by the flag `cIn = 1` which is received in the default task from the EXTI Callback function.
+
+Anytime a switch between filtered and non-filtered signal happens (through SW2), `min_final_count` is reset to 30000 so that the max speed for the new signal type will not be affected by the values of the last signal type. Also, if this switch happens in the freeze state, the speed values will be reset to zero so that the previous frozen max speeds will not stay on the LCD screen.
+
+In the non-freeze state, whenever a new `final_count` is received (through timer SR to task communication), it is compared with the current `min_final_count` to update it for the max speed in the freeze state. In the freeze state, `min_final_count` is taken for measurements.
 
 
-\chapter{Conclusion}
+## Conclusion
 
+**A Concluding Note on Frequency Calculation:** When a signal is received from the Radar sensor, the calculation will be performed in the processor of the microcontroller. Since the highest signal frequency that is received is 600Hz, the sampling rate according to the Nyquist criteria should be at least double this value. We have adjusted the timer parameters in such a way so that the timer service function is called 13333 times per second and within each call, ADC takes one sample. This makes the sampling rate over 20 times the highest frequency. Whenever one sample is taken, it is compared with its previous sample to detect two successive zero crossings and count the number of samples taken within these zero crossings. Since the time for taking one sample is known based on the sampling rate of the timer/ADC, the half period of the signal can be measured. During this process, an offset value and also a threshold value for canceling the noise have been considered. By knowing the period and frequency of the signal, the speed of the object will be measured using the Doppler formula. 
 
-\noindent\textbf{A Concluding Note on Frequency Calculation:} When a signal is received from the Radar sensor, the calculation will be performed in the processor of the microcontroller. Since the highest signal frequency that is received is 600 Hz, the sampling rate according to the Nyquist criteria should be at least double this value. We have adjusted the timer parameters in such a way so that the timer service function is called 13333 times per second and within each call, ADC takes one sample. This makes the sampling rate over 20 times the highest frequency. Whenever one sample is taken, it is compared with its previous sample to detect two successive zero crossings and count the number of samples taken within these zero crossings. Since the time for taking one sample is known based on the sampling rate of the timer/ADC, the half period of the signal can be measured. During this process, an offset value and also a threshold value for canceling the noise have been considered. By knowing the period and frequency of the signal, the speed of the object will be measured using the Doppler formula.\\ 
-
-\noindent The user can hold the reading on the LCD screen if switch 1 is pressed which will display the maximum speed calculated since the last reading. LED1 will be on to indicate the hold state. The user can release the hold state by pressing switch 1 again and the system will return again to wait for a new received signal.
-
-
-
-\end{document}
+The user can hold the reading on the LCD screen if switch 1 is pressed which will display the maximum speed calculated since the last reading. LED1 will be on to indicate the hold state. The user can release the hold state by pressing switch 1 again and the system will return again to wait for a new received signal.
