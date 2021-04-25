@@ -3,6 +3,11 @@ Embedded radar sensor circuit with STM32 microcontroller and C programming for m
 
 # Skills learned in this project:
 * GIT
+* Basics of hardware design and PCB layout
+* Digital and analog circuits
+* Accessing peripheral components
+* Interrupts, serial I/O, general purpose I/O, ...
+* RTOS, multitasking, synchronization, semaphores
 * STM32CubeMx configuration code generator
 * Schematic CAD software (KiCAD Eeschema): placing parts, connections in schematic, footprints, annotation, netlist
 * PCB CAD software (KiCAD): loading netlist, GND pours, Vias, Gerber and Drill files for production
